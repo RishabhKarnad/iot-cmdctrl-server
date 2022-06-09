@@ -5,6 +5,7 @@ import { router } from './routes'
 import { db } from './db'
 // import { createAMQPLink } from './amqp'
 import { ENV } from './env'
+import { handleError } from './routes/error-handler'
 
 async function init() {
   await db.initialize()
@@ -14,6 +15,8 @@ async function init() {
   app.use(express.urlencoded({ extended: false }))
 
   app.use(router)
+
+  app.use(handleError)
 
   // createAMQPLink()
 

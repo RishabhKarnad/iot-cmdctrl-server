@@ -1,5 +1,2 @@
-export function createOKPayload() {
-  return {
-    message: 'OK',
-  }
-}
+export * from './AppError'
+export * from './response-payloads'

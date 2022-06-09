@@ -2,6 +2,12 @@ import { Router } from 'express'
 import { CREATED, NOT_FOUND, OK } from 'http-status'
 
 import * as deviceService from './service'
+import {
+  validateCreateDeviceParams,
+  validateDeleteDeviceParams,
+  validateFindDeviceParams,
+  validateUpdateDeviceParams,
+} from './validators'
 
 const deviceRouter = Router()
 
@@ -13,7 +19,7 @@ deviceRouter.get('/', async (req, res) => {
   })
 })
 
-deviceRouter.get('/:id', async (req, res) => {
+deviceRouter.get('/:id', validateFindDeviceParams, async (req, res) => {
   const device = await deviceService.getDeviceById(req.params.id)
 
   if (!device) {
@@ -27,7 +33,7 @@ deviceRouter.get('/:id', async (req, res) => {
   }
 })
 
-deviceRouter.post('/:id', async (req, res) => {
+deviceRouter.post('/:id', validateCreateDeviceParams, async (req, res) => {
   await deviceService.createDevice({
     id: req.params.id,
     name: req.body.name,
@@ -42,7 +48,7 @@ deviceRouter.post('/:id', async (req, res) => {
   })
 })
 
-deviceRouter.patch('/:id', async (req, res) => {
+deviceRouter.patch('/:id', validateUpdateDeviceParams, async (req, res) => {
   const device = await deviceService.updateDevice(req.params.id, {
     ...req.body,
   })
@@ -58,7 +64,7 @@ deviceRouter.patch('/:id', async (req, res) => {
   }
 })
 
-deviceRouter.delete('/:id', async (req, res) => {
+deviceRouter.delete('/:id', validateDeleteDeviceParams, async (req, res) => {
   await deviceService.deleteDevice(req.params.id)
 
   res.status(OK).send({
