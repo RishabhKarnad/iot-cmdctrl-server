@@ -37,6 +37,7 @@ export function validateCreateDeviceParams(
       batteryLevel: joi.number().required(),
       lat: joi.number().required(),
       lng: joi.number().required(),
+      password: joi.string().required(),
     })
     .validate(req.body)
 
@@ -65,6 +66,7 @@ export function validateUpdateDeviceParams(
       batteryLevel: joi.number(),
       lat: joi.number(),
       lng: joi.number(),
+      password: joi.string(),
     })
     .validate(req.body)
 

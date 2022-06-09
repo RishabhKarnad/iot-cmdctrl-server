@@ -41,6 +41,7 @@ deviceRouter.post('/:id', validateCreateDeviceParams, async (req, res) => {
     batteryLevel: req.body.batteryLevel,
     lat: req.body.lat,
     lng: req.body.lng,
+    password: req.body.password,
   })
 
   res.status(CREATED).send({

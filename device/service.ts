@@ -1,7 +1,10 @@
 import { DeepPartial } from 'typeorm'
+
 import { CONFIG } from '../config'
 import { deviceRepository } from './repository'
 import { DeviceParams } from './types'
+import * as deviceRegistryService from '../iot-platform/device-registry.service'
+import { ENV } from '../env'
 
 export async function getDevices() {
   const devices = await deviceRepository.find()
@@ -25,6 +28,12 @@ export async function createDevice(deviceParams: DeviceParams) {
     lng: deviceParams.lng,
   })
 
+  await deviceRegistryService.registerDevice(
+    ENV.TENANT_ID,
+    deviceParams.id,
+    deviceParams.password,
+  )
+
   await deviceRepository.save(device)
 }
 
@@ -33,6 +42,14 @@ export async function updateDevice(
   deviceParams: DeepPartial<DeviceParams>,
 ) {
   await deviceRepository.update({ id }, deviceParams)
+
+  if (deviceParams.password) {
+    await deviceRegistryService.updateDevicePassword(
+      ENV.TENANT_ID,
+      id,
+      deviceParams.password,
+    )
+  }
 
   const device = await deviceRepository.findOneBy({ id })
 

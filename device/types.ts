@@ -5,4 +5,5 @@ export interface DeviceParams {
   batteryLevel: number
   lat: number
   lng: number
+  password: string
 }
