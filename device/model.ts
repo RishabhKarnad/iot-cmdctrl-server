@@ -11,12 +11,12 @@ export class Device extends BaseEntity {
   @Column()
   isActive!: boolean
 
-  @Column()
+  @Column('real')
   batteryLevel!: number
 
-  @Column()
+  @Column('real')
   lat!: number
 
-  @Column()
+  @Column('real')
   lng!: number
 }

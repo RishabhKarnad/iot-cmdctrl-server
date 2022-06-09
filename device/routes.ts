@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { CREATED, NOT_FOUND, OK } from 'http-status'
 
 import * as deviceService from './service'
 
@@ -7,8 +8,61 @@ const deviceRouter = Router()
 deviceRouter.get('/', async (req, res) => {
   const devices = await deviceService.getDevices()
 
-  res.send({
+  res.status(OK).send({
     devices,
+  })
+})
+
+deviceRouter.get('/:id', async (req, res) => {
+  const device = await deviceService.getDeviceById(req.params.id)
+
+  if (!device) {
+    res.status(NOT_FOUND).send({
+      error: 'Device not found',
+    })
+  } else {
+    res.status(OK).send({
+      device,
+    })
+  }
+})
+
+deviceRouter.post('/:id', async (req, res) => {
+  await deviceService.createDevice({
+    id: req.params.id,
+    name: req.body.name,
+    isActive: req.body.isActive,
+    batteryLevel: req.body.batteryLevel,
+    lat: req.body.lat,
+    lng: req.body.lng,
+  })
+
+  res.status(CREATED).send({
+    message: `Device ${req.params.id} created and registered`,
+  })
+})
+
+deviceRouter.patch('/:id', async (req, res) => {
+  const device = await deviceService.updateDevice(req.params.id, {
+    ...req.body,
+  })
+
+  if (!device) {
+    res.status(NOT_FOUND).send({
+      error: 'Device not found',
+    })
+  } else {
+    res.status(OK).send({
+      device,
+    })
+  }
+})
+
+deviceRouter.delete('/:id', async (req, res) => {
+  await deviceService.deleteDevice(req.params.id)
+
+  res.status(OK).send({
+    message: 'Device removed',
   })
 })
 
