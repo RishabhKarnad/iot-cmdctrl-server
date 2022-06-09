@@ -1,18 +1,26 @@
-import express, { Request, Response } from 'express'
+import 'reflect-metadata'
+import express from 'express'
 
 import { router } from './routes'
-import { createAMQPLink } from './services/amqp'
-import { ENV } from './config/env'
+import { db } from './db'
+// import { createAMQPLink } from './amqp'
+import { ENV } from './env'
 
-const app = express()
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+async function init() {
+  await db.initialize()
 
-app.use(router)
+  const app = express()
+  app.use(express.json())
+  app.use(express.urlencoded({ extended: false }))
 
-createAMQPLink()
+  app.use(router)
 
-const PORT = ENV.HTTP_SERVER_PORT
-app.listen(PORT, () => {
-  console.log(`Server running on PORT ${PORT}`)
-})
+  // createAMQPLink()
+
+  const PORT = ENV.HTTP_SERVER_PORT
+  app.listen(PORT, () => {
+    console.log(`Server running on PORT ${PORT}`)
+  })
+}
+
+init()

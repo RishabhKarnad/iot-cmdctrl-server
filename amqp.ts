@@ -1,10 +1,12 @@
 import { create_container } from 'rhea'
 
-import { ENV } from '../config/env'
+import { ENV } from './env'
 
 export function createAMQPLink() {
-  const host = ENV.HOST
+  const host = ENV.AMQP_NETWORK_HOST
   const tenantId = ENV.TENANT_ID
+  console.log('Host:', host)
+  console.log('Tenant:', tenantId)
 
   const container = create_container({
     id: `container-${tenantId}`,
