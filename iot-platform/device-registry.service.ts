@@ -1,13 +1,12 @@
-import fetch from 'node-fetch'
+import axios from 'axios'
 
 import { ENV } from '../env'
+import { AppError } from '../util/AppError'
 
 const baseUrl = `${ENV.DEVICE_REGISTRY_HOST}:${ENV.DEVICE_REGISTRY_PORT}`
 
 export async function createTenant(tenantId: string) {
-  await fetch(`${baseUrl}/v1/tenants/${tenantId}`, {
-    method: 'POST',
-  })
+  await axios.post(`${baseUrl}/v1/tenants/${tenantId}`, {})
 }
 
 export async function registerDevice(
@@ -15,24 +14,40 @@ export async function registerDevice(
   deviceId: string,
   password: string,
 ) {
-  await fetch(`${baseUrl}/v1/devices/${tenantId}/${deviceId}`, {
-    method: 'POST',
-  })
+  const deviceRegResponse = await axios.post(
+    `${baseUrl}/v1/devices/${tenantId}/${deviceId}`,
+  )
 
-  await fetch(`${baseUrl}/v1/credentials/${tenantId}/${deviceId}`, {
-    method: 'PUT',
-    body: JSON.stringify([
-      {
-        type: 'hashed-password',
-        'auth-id': deviceId,
-        secrets: [
-          {
-            'pwd-plain': password,
-          },
-        ],
-      },
-    ]),
-  })
+  if (deviceRegResponse.status >= 300) {
+    throw new AppError(
+      deviceRegResponse.status,
+      `Failed to register device ${deviceId} with tenant ${tenantId}`,
+    )
+  }
+
+  const credentialsResponse = await axios.put(
+    `${baseUrl}/v1/credentials/${tenantId}/${deviceId}`,
+    {
+      body: [
+        {
+          type: 'hashed-password',
+          'auth-id': deviceId,
+          secrets: [
+            {
+              'pwd-plain': password,
+            },
+          ],
+        },
+      ],
+    },
+  )
+
+  if (credentialsResponse.status >= 300) {
+    throw new AppError(
+      credentialsResponse.status,
+      `Failed to update credentials for ${deviceId}`,
+    )
+  }
 }
 
 export async function updateDevicePassword(
@@ -40,9 +55,8 @@ export async function updateDevicePassword(
   deviceId: string,
   password: string,
 ) {
-  await fetch(`${baseUrl}/v1/credentials/${tenantId}/${deviceId}`, {
-    method: 'PUT',
-    body: JSON.stringify([
+  await axios.put(`${baseUrl}/v1/credentials/${tenantId}/${deviceId}`, {
+    body: [
       {
         type: 'hashed-password',
         'auth-id': deviceId,
@@ -52,12 +66,10 @@ export async function updateDevicePassword(
           },
         ],
       },
-    ]),
+    ],
   })
 }
 
 export async function deleteDevice(tenantId: string, deviceId: string) {
-  await fetch(`${baseUrl}/v1/devices/${tenantId}/${deviceId}`, {
-    method: 'DELETE',
-  })
+  await axios.delete(`${baseUrl}/v1/devices/${tenantId}/${deviceId}`, {})
 }
